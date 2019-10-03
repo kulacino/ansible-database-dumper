@@ -1,0 +1,17 @@
+## variable files
+access_key: XXXXXXXXXXXXXXXXXXXXXXX
+secret_key: XXXXXXXXXXXXXXXXXXXXXXX
+dbuser: userxxx
+dbpass: passxxx
+dbport: 3306
+dbhost:
+exclude_db:
+  - Database
+  - information_schema
+  - performance_schema
+  - mysql
+  - sys
+  - tmp
+  - temp
+  - ansible
+  - etc

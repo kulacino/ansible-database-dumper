@@ -1,0 +1,30 @@
+---
+# Task to upload mysql dump data into S3 bucket
+# created by halo[at]ayuwelirang.com
+# ../tasks/02-upload_mysqldump.yml
+
+# 6 - Create empty S3 bucket
+- name: create s3 bucket with date as its name
+  aws_s3:
+    bucket: mysqldump-storage
+    object: "{{ ansible_date_time.date }}"
+    mode: create
+
+# 7 - Start uploading files from temporary folder to S3 bucket
+- name: upload dbdump to s3
+  s3_sync:
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    bucket: mysqldump-storage
+    key_prefix: "{{ ansible_date_time.date }}"
+    file_root: /tmp/
+    mode: push
+    permission: private
+    include: "*.sql.gz"
+    exclude: "*.sql"
+
+# Delete local file after upload finished
+- name: delete local file after upload
+  shell: cd /tmp/ && rm *.sql.gz
+
+# EOF

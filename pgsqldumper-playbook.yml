@@ -1,0 +1,16 @@
+# Playbook to dump postgresql databases and upload it into S3
+# created by halo[at]ayuwelirang.com and can be used as ansible awx template and schedule
+# ../pgsqldumper-playbook.yml
+
+---
+- name: ansible mysql dump
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - import_tasks: tasks/01-dump_pgsql.yml
+    - import_tasks: tasks/02-upload_postgredump.yml

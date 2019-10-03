@@ -1,0 +1,39 @@
+---
+# Task to backup all mysql databases into separate files except excluded db under vars file
+# created by halo[at]ayuwelirang.com
+# ../tasks/01-dump_mysql.yml
+
+# 1 - Create backup folder if it's not available
+- name: create temporary backup folder
+  file:
+    path: "/tmp/"
+    state: directory
+
+# 2 - Start backup, exclude information_schema, performance_schema, mysql"
+- name: register database name into output
+  shell: 'mysql -u {{ dbuser }} -p{{ dbpass }} -h {{ dbhost }} -e "show databases;"'
+  register: dblistprod
+
+# 3 - Install pip module for ansible interpreter
+- apt:
+    name: python3-pip
+    state: present
+
+# 4 - Use PyMySQL if necessary
+- pip:
+    name:
+    - PyMySQL
+    - boto3
+
+# 5 - Start dump databases from registered list at step 2
+- name: dump mysql databases
+  mysql_db:
+    state: dump
+    single_transaction: yes
+    name: "{{ item }}"
+    target: "/tmp/{{ ansible_date_time.iso8601_basic_short }}_{{ item }}.sql.gz"
+    login_user: "{{ dbuser }}"
+    login_password: "{{ dbpass }}"
+    login_port: "{{ dbport }}"
+    login_host: "{{ dbhost }}"
+  with_items: "{{ dblistprod.stdout_lines | difference(exclude_db) }}"
